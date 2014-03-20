@@ -1,0 +1,11 @@
+[%- sep = '-' -%]
+    #=[% sep.repeat(name.length) %]--- 
+    #  [% name %]
+    #=[% sep.repeat(name.length) %]--- 
+    #* put_description_here
+    #* RETURN: put_return_value_here
+    sub [% name %] {
+        my $self = __@_;
+
+        return OK;
+    }

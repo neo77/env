@@ -1,0 +1,63 @@
+#!/usr/bin/perl
+#perl -e 'print "Result: ", $r = eval <>, "\n" while 1'
+
+package MyCalc;
+use Term::ReadLine;
+use Data::Dumper;
+
+$Data::Dumper::Deparse = 1;
+$Data::Dumper::Indent = 2;
+use overload 
+    '%=' => \&percent;
+
+sub percent {
+    my ($self, $other) = @_;
+    my $result;
+    $result = $$self + (($other/100)*$$self);
+};
+
+sub new {
+    my $v = $_[1];
+    return bless \$v, $_[0];
+}
+
+sub reload {
+    for $file ("./.calc", "$ENV{HOME}/.calc") {
+        next unless -r $file;
+        open ((my $functions), '<', $file);
+        local $/ = undef;
+        my $function_list = <$functions>;
+        eval "package main; $function_list";
+    }
+    return "Error: $@\n" if $@;
+    return "Functions lib reloaded\n";
+}
+
+sub edit($) {
+    system(($ENV{"EDITOR"}||'/usr/bin/vim')." $_[0]");
+}
+sub cedit() {
+    system(($ENV{"EDITOR"}||'/usr/bin/vim')." $ENV{HOME}/.calc");
+    reload();
+}
+
+my ($r, @r);
+
+sub r(;$) {
+    my $i = 1;
+    (print($i.": ".$$r[$i-1]."\n"), $i++) for  @r;
+ 
+    return ($_[0] ? $$r[$_[0]+1] : $$r[-1]);
+
+}
+
+$|=1;
+my $term = new Term::ReadLine $0;
+print reload(),"\n";
+
+while($command = $term->readline("> ")) {
+    $r = new MyCalc(eval $command);
+    push @r, $r;
+    print "Error: $@\n" if $@;
+    print Data::Dumper->Dump([$$r], ['r'] ), "\n";
+}

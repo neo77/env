@@ -1,0 +1,5 @@
+[%- IF rq == 1 %]
+    	my $p_[%- name -%] = param_rq '[%- name -%]',qr/.+/;	#  
+[%- ELSE -%]
+	    my $p_[%- name -%] = param_op '[%- name -%]',qr/.*/,'';	#  
+[%- END -%]

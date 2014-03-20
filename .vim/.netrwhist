@@ -1,0 +1,8 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =6
+let g:netrw_dirhist_1='/home/neo77/workspace'
+let g:netrw_dirhist_2='/home/neo/workspace/github/Params-Dry-Declare'
+let g:netrw_dirhist_3='/home/neo/workspace/github/Params-Dry-Declare/lib'
+let g:netrw_dirhist_4='/home/neo/workspace/github/Params-Dry-Declare/lib/Params'
+let g:netrw_dirhist_5='/home/neo/workspace/github/Params-Dry-Declare/lib/Params/Dry'
+let g:netrw_dirhist_6='/home/neo/workspace/neo/kuptanio'

@@ -1,0 +1,65 @@
+
+
+
+sub true {
+    1;
+};
+
+
+sub pow($$);
+sub pow($$) {
+    return (
+                ($_[1]) ? 
+                    (pow($_[0],$_[1]-1)*$_[0]) : 
+                    1
+            );
+};
+
+sub tynk($$) {
+    return $_[0]*250*2 + $_[1]*250*2
+}
+
+
+sub PLN2EUR($$) {
+    $_[0] / $_[1];
+}
+sub EUR2PLN($$) {
+    $_[0] * $_[1];
+}
+
+sub daily2ps($) {
+    $_[0] / (3600*24)
+}
+sub ps2daily($) {
+    $_[0] * (3600*24)
+}
+
+sub ean13checksum {
+    my ($e8, $e13);
+    my @a = split '', $_[0];
+    
+    (@a == 8) and ($e8, $e13) = (3,1);
+    (@a == 13) and ($e8, $e13) = (1,3);
+    pop @a;
+
+    
+    my ($sum, $flag) = (0)x2;
+    for (@a) {
+        $sum += +(++$flag % 2) ? $_*$e8 : $_*$e13;
+    }
+
+    return ((10 - ($sum % 10)) % 10);
+}
+sub help {
+    Dumper({
+        'pow($$)' => 'liczy potege',
+        'PLN2EUR($$)' => '...', 
+        'EUR2PLN($$)' => '...',
+        'daily2ps($)' => 'przelicza ilosc rq/day na rq/sec',
+        'ps2daily($)' => 'przelicza ilosc rq/day na rq/sec',
+        'ean13checksum($)' => 'liczy checksum ean13',
+    });
+
+}
+
+# vim: syntax=perl

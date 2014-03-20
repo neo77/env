@@ -1,0 +1,110 @@
+#!/usr/bin/env perl
+#* Info: record dumper :)
+use Data::Dumper;
+use Term::ANSIColor qw(:constants);
+$Term::ANSIColor::AUTORESET = 1;
+
+$file = $ARGV[0];
+$sep = $ARGV[1];
+$sep = chr($1) if $sep =~ /^v(\d+)$/;
+$rec = $ARGV[2];
+$in = $ARGV[3];
+
+print "\n=-------------------------------->\n";
+print BOLD."     rd (record dumper) ".RESET;
+print "\n=-------------------------------->\n\n";
+
+if ($#ARGV < 0) {
+die <<"EOF";
+usage: rd file sep records [nointeract]
+   file		- input file name or - for stdin
+   sep 		- field separator (if /v\\d+/ then using perl v\\d+)
+   records 	- input records (read first n records)
+   nointeract 	- if set, interactive mode is off
+
+note:
+   if exist file './rd.head' or '.di.head' (after rd.head) then it ll be used as header
+
+EOF
+}
+
+
+open IF, "$file" or die "no input file";
+$_ = <IF>;
+s/\r//g;
+chomp;
+
+unless ($sep) {	
+	my $sepline = $_;
+	my %sepcand;
+	foreach my $seper (split /|/, $sepline)
+	{
+		$sepcand{$seper}++;
+	}
+	my $val;
+	my $sep;
+	while (($key, $value) = (each %sepcand)) {
+#		print "$key = $value\n";
+		if ($key !~ /[a-zA-Z0-9 \/\.\,\-\_\<\>]/i) {
+			if ($value > $val) {
+			#	print "new: $key ($val) old: $sep ($value)\n";
+				$val = $value;
+				$sep = $key;
+		
+			}
+		}
+		
+	}
+	my $mysep="\\$sep";
+#	print scalar(split /$mysep/, $sepline) .       "\n\n\n\n\n";
+#	print scalar(split /$mysep$mysep/, $sepline) . "\n\n\n\n\n";
+#	warn "possible double $sep" if scalar(split /$mysep$mysep/, $sepline) /   (scalar(split /$mysep/, $sepline)  )>=0.5;
+	$sep=$sep x2                if scalar(split /$mysep$mysep/, $sepline) /   (scalar(split /$mysep/, $sepline)  )>=0.5;
+	print "Detected sep = $sep\n\n";
+	exit;
+}
+
+@head = split /$sep/;
+		print (("----"x32)."\n");
+#print Dumper(@head);
+foreach(@head) {
+	$notnames = 1 if /http/;
+	$notnames = 1 if /^[0-9]+$/;
+}
+if ($notnames) {
+	my $ct = 0; foreach(@head) { $_ = 'Field '.$ct++}
+}
+my $fnam = (-e './rd.head')?'./rd.head':(-e './.di.head')?'./.di.head':'';
+if ($fnam)
+{ 
+	open HEAD, $fnam;
+		$_ = <HEAD>;
+		s/\r//g;
+		chomp;
+		#s/$sep/)${sep}Field (/g;
+		#s/^/Field (/;
+		#s/$/)/;
+		@_ = split /$sep/;
+		my $ct = 0;
+		foreach $nhead (@_)
+		{
+			$head[$ct++] .= " ($nhead)";
+		}
+	close HEAD;
+}
+
+while (<IF>) {
+	exit if $. > $rec;
+	s/\r//g;
+	s/APOSMAKRZYK/!/g;
+	s/APOSMAHASZ/#/g;
+	s/APOSMAKLOTA/'/g;
+	my @record = split /$sep/;
+	foreach $rid (0..$#record) {
+		print "($rid)$head[$rid]".(' 'x(30-(length($head[$rid])+2+length($rid))))." = \t$record[$rid]\n";
+		print (("----"x32)."\n");
+	}
+	#print Dumper($reha);
+	<STDIN> unless $in;
+}
+
